@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>PS947 Homework 3</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Homework_3_Quatro_Version_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Homework_3_Quatro_Version_files/libs/quarto-html/quarto.js"></script>
+<script src="Homework_3_Quatro_Version_files/libs/quarto-html/popper.min.js"></script>
+<script src="Homework_3_Quatro_Version_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Homework_3_Quatro_Version_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Homework_3_Quatro_Version_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Homework_3_Quatro_Version_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Homework_3_Quatro_Version_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Homework_3_Quatro_Version_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Homework_3_Quatro_Version_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">PS947 Homework 3</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="question-2" class="level2">
+<h2 class="anchored" data-anchor-id="question-2">Question 2</h2>
+<p>Fit an appropriate model to this data to analyse how recommendation mode affects whether a recommendation is followed. Remember to describe your analysis choices and why you made them.</p>
+</section>
+<section id="running-code" class="level2">
+<h2 class="anchored" data-anchor-id="running-code">Running Code</h2>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'readxl' was built under R version 4.2.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+• `` -&gt; `...1`</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>recommendations_HW3 <span class="ot">&lt;-</span> recommendations_HW3<span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mode =</span> <span class="fu">as.factor</span>(Mode))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>recom_new <span class="ot">&lt;-</span> recommendations_HW3<span class="sc">%&gt;%</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Mode)<span class="sc">%&gt;%</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">followed =</span> <span class="fu">mean</span>(RecommendationFollowed))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Average values of the Auditory and Visual mode for the recommendation followed:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>recom_new</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  Mode     followed
+  &lt;chr&gt;       &lt;dbl&gt;
+1 Auditory    0.514
+2 Visual      0.394</code></pre>
+</div>
+</div>
+<p>The data shows that participants who had an auditory recommendation followed the recommendation <strong>51.4%</strong> of the time whereas those who had an auditory recommendation followed it <strong>39.4%</strong> of the time.</p>
+<p>A bar-plot of the mean values for the Auditory and Visual mode.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="running-a-simple-model" class="level1">
+<h1>Running a simple model</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>recom_glm <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">data =</span> recommendations_HW3, </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 RecommendationFollowed <span class="sc">~</span> Mode, </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">family =</span> <span class="st">"binomial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now to create a generalised linear model where Recommendation Followed is regressed against Mode.</p>
+<p>I chose a</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(recom_glm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = RecommendationFollowed ~ Mode, family = "binomial", 
+    data = recommendations_HW3)
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-1.201  -1.001  -1.001   1.154   1.365  
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  0.05585    0.07127   0.784    0.433    
+ModeVisual  -0.48583    0.10209  -4.759 1.95e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 2166.0  on 1571  degrees of freedom
+Residual deviance: 2143.2  on 1570  degrees of freedom
+AIC: 2147.2
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p>Looking at the coefficients, now let’s run a plogis function to understand the proportion of participants who followed the recommendation for the given mode.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5149955</code></pre>
+</div>
+</div>
+<p>For the Beta coefficient of 0.06, which is the intercept, <strong>51%</strong> of participants followed the recommendation for the auditory mode.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3798936</code></pre>
+</div>
+</div>
+<p>For the Beta coefficient of -0.49, which represents the visual mode, only <strong>37%</strong> of participants followed the recommendation.</p>
+<p>This, however, seemed to be too simple of a conclusion for the given data set, therefore, I went about including Stimulus type into the model to give a broader perspective of how Recommendation Followed is regressed against Mode and looking at the interactions between different stimulus types per person.</p>
+</section>
+<section id="a-more-complicated-model" class="level1">
+<h1>A more complicated model</h1>
+<p>I wanted to see if there was an effect for whether the recommendation was followed for the sensory modality and stimulus type. This makes the model more complicated but certainly more informative by looking at the relationship between recommendation followed with mode and stimulus, their interaction, and accounting for the random effects of mode for each level of person.</p>
+<p>Mode and Stimulus represent the independent variables.</p>
+<p>I have decided to put <strong>mode</strong> as a variable slope and <strong>response id</strong> as the variable intercept. Mode and response id represent random effects as Mode is variable being either auditory and visual, and response id as this study had a repeated measures design whereby the same participant experienced multiple stimulus types for the same mode.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>recommendations_HW3<span class="sc">$</span>ResponseID <span class="ot">&lt;-</span> <span class="fu">factor</span>(recommendations_HW3<span class="sc">$</span>ResponseID)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>recom_int_glmer <span class="ot">&lt;-</span> <span class="fu">glmer</span>(<span class="at">data =</span> recommendations_HW3, </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                 RecommendationFollowed <span class="sc">~</span> Mode <span class="sc">+</span> (Mode<span class="sc">|</span>ResponseID) <span class="sc">*</span> Stimulus, </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">family =</span> <span class="st">"binomial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now to have a look at the output for this model</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(recom_int_glmer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: binomial  ( logit )
+Formula: RecommendationFollowed ~ Mode + (Mode | ResponseID) * Stimulus
+   Data: recommendations_HW3
+
+     AIC      BIC   logLik deviance df.resid 
+  1834.3   1877.2   -909.1   1818.3     1564 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.6936 -0.5626 -0.2548  0.5640  2.6795 
+
+Random effects:
+ Groups     Name        Variance Std.Dev. Corr 
+ ResponseID (Intercept) 3.366    1.835         
+            ModeVisual  1.852    1.361    -0.63
+Number of obs: 1572, groups:  ResponseID, 393
+
+Fixed effects:
+                      Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)             0.2270     0.1972   1.151 0.249728    
+ModeVisual             -0.7944     0.2171  -3.659 0.000253 ***
+StimulusCreditCard     -1.0120     0.1882  -5.378 7.53e-08 ***
+StimulusExtensionCord   1.5519     0.1927   8.055 7.94e-16 ***
+StimulusRestaurant     -0.7992     0.1843  -4.336 1.45e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) ModVsl StmlCC StmlEC
+ModeVisual  -0.641                     
+StmlsCrdtCr -0.452  0.050              
+StmlsExtnsC -0.388 -0.063  0.369       
+StmlsRstrnt -0.454  0.040  0.487  0.390</code></pre>
+</div>
+</div>
+<p>We can see that including stimulus type into the model produces much different results to the previous, more simple model.</p>
+<p>This new model shows that when in the visual mode, the extension cord stimulus was positively associated with following the recommendation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="fl">1.55</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8249137</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="fl">0.23</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5572479</code></pre>
+</div>
+</div>
+<p>As such, converting the Beta coefficient into a percentage, <strong>82%</strong> of those in the visual mode with an extension cord stimulus type followed the recommendation. Furthermore, as shown by the intercept, when all other variables are held constant, there is a positive association with auditory mode and following the recommendation in that <strong>55%</strong> of participants followed the recommendation when in the auditory mode.</p>
+<p>This model is certainly more informative than the previous more simple one as we can see that the visual condition for the extension cord stimulus was actually positively associated with following the recommendation.</p>
+<section id="complicated-models-truly-are-our-saving-grace-praise-be" class="level2">
+<h2 class="anchored" data-anchor-id="complicated-models-truly-are-our-saving-grace-praise-be">Complicated models truly are our saving grace! Praise be!!</h2>
+<p>A cute lil plot of this new model</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="omg-it-is-so-ugly-not-cute-at-all" class="level2">
+<h2 class="anchored" data-anchor-id="omg-it-is-so-ugly-not-cute-at-all">OMG it is so ugly! Not cute at all</h2>
+<p>What this horrible graph tells us is that in the visual condition, only the recommendation on the extension cord stimulus prompted people to follow the recommendation (as shown in the light blue column). All the other stimulus types were negatively associated with following the recommendation.</p>
+<section id="next-we-are-going-to-have-a-think-about-if-there-a-difference-between-perceived-competence-intelligence-and-thoughtfulness-for-the-different-modalities" class="level3">
+<h3 class="anchored" data-anchor-id="next-we-are-going-to-have-a-think-about-if-there-a-difference-between-perceived-competence-intelligence-and-thoughtfulness-for-the-different-modalities">Next, we are going to have a think about if there a difference between perceived competence, intelligence and thoughtfulness for the different modalities?</h3>
+</section>
+<section id="a-first-thought-might-be-to-see-the-composite-intellect---the-aggregation-of-the-three-variables-and-see-if-this-shares-a-relationship-with-modality." class="level3">
+<h3 class="anchored" data-anchor-id="a-first-thought-might-be-to-see-the-composite-intellect---the-aggregation-of-the-three-variables-and-see-if-this-shares-a-relationship-with-modality.">A first thought might be to see the composite intellect - the aggregation of the three variables, and see if this shares a relationship with modality.</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Composite_int <span class="ot">&lt;-</span> recommendations_HW3<span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Mode)<span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Intellect =</span> <span class="fu">mean</span>(CompositeIntellect))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>Composite_int</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  Mode     Intellect
+  &lt;chr&gt;        &lt;dbl&gt;
+1 Auditory      5.14
+2 Visual        5.66</code></pre>
+</div>
+</div>
+<p>So we can see that the general intellect ratings in the visual condition are higher than that of the auditory condition. Now let’s go and test the modality against each separate rating variable.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>So we can see that the general intellect ratings in the visual condition are higher than that of the auditory condition. Although this is not by much!</p>
+<p>Now let’s go and test the modality against each separate rating variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>funky_glm <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">data =</span> recommendations_HW3, mode <span class="sc">~</span> Competent <span class="sc">+</span> Intelligent <span class="sc">+</span> Thoughtful,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">family =</span> <span class="st">"binomial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(funky_glm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = mode ~ Competent + Intelligent + Thoughtful, family = "binomial", 
+    data = recommendations_HW3)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.9787  -1.1187  -0.3508   1.1160   1.9881  
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -1.09511    0.18910  -5.791 6.99e-09 ***
+Competent   -0.34565    0.04934  -7.005 2.47e-12 ***
+Intelligent  0.29537    0.05472   5.397 6.76e-08 ***
+Thoughtful   0.26713    0.04118   6.487 8.73e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 2179.2  on 1571  degrees of freedom
+Residual deviance: 2052.3  on 1568  degrees of freedom
+AIC: 2060.3
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p>So, in the summary we can see that there are significant effects for the intercept and the three variables.</p>
+<p>Now, making a plot will make this data easier to visualise. I will make three separate plots for simplicity.</p>
+</section>
+<section id="competence" class="level3">
+<h3 class="anchored" data-anchor-id="competence">Competence</h3>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.35</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.4133824</code></pre>
+</div>
+</div>
+<p>We can see that <strong>41%</strong> of participants rating the recommendation as less competent in the auditory mode.</p>
+</section>
+<section id="intelligence" class="level3">
+<h3 class="anchored" data-anchor-id="intelligence">Intelligence</h3>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="fl">0.30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5744425</code></pre>
+</div>
+</div>
+<p>We can see that <strong>57%</strong> of participants rated the visual mode as more intelligent as those in the auditory mode.</p>
+</section>
+<section id="thoughtfulness" class="level3">
+<h3 class="anchored" data-anchor-id="thoughtfulness">Thoughtfulness</h3>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="fl">0.27</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5670929</code></pre>
+</div>
+</div>
+<p>Finally, we can see that <strong>56%</strong> of participants ratede the visual mode as more thoughtful than those in the auditory mode.</p>
+</section>
+<section id="overall-we-can-see-that-there-were-significant-differences-for-the-auditory-mode-recommendations-were-rated-as-more-competent-however-for-the-visual-mode-participants-rated-the-visual-recommendations-are-more-intelligent-and-thoughtful." class="level3">
+<h3 class="anchored" data-anchor-id="overall-we-can-see-that-there-were-significant-differences-for-the-auditory-mode-recommendations-were-rated-as-more-competent-however-for-the-visual-mode-participants-rated-the-visual-recommendations-are-more-intelligent-and-thoughtful.">Overall, we can see that there were significant differences for the auditory mode, recommendations were rated as more competent, however, for the visual mode participants rated the visual recommendations are more intelligent and thoughtful.</h3>
+</section>
+</section>
+</section>
+<section id="why-would-we-use-a-beta-distribution" class="level1">
+<h1>Why would we use a beta distribution?</h1>
+<ul>
+<li><p>Beta distributions do not assume normality in the data and for this example, student scores may well not be normally distributed, especially since this is such a hard module!!</p></li>
+<li><p>Also, since there are clear bounds to the data set i.e., being between 0-100, we can convert the marks down to 0-1 instead.</p></li>
+<li><p>Beta distributions are more appropriate for percentage data as well, thus it seems appropriate to use it for student scores as the parameters of the B-D are set to reflect the minimum and maximum bounds of the data set.</p></li>
+</ul>
+<p>Okay! Let’s set some alpha and beta values</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">=</span> <span class="dv">20</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">=</span> <span class="dv">14</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>As we can see with this plot, students scores are more likely to range around 67, therefore with an alpha of 20 and a beta of 14 i based my prior around this to reflect it in the beta distribution plot.</p>
+<section id="a-b-d-with-weakly-informative-priors" class="level2">
+<h2 class="anchored" data-anchor-id="a-b-d-with-weakly-informative-priors">A B-D with weakly informative priors</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">=</span> <span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This is weakly informative because the density of scores is very broad and has the highest level of density around the mid-point of the scale, thus giving us a rough idea that most scores will be around the mid-point.</p>
+</section>
+<section id="informative-priors" class="level2">
+<h2 class="anchored" data-anchor-id="informative-priors">Informative priors</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">=</span> <span class="fl">3.5</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">=</span> <span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">p =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.01</span>), <span class="at">y =</span> <span class="fu">dbeta</span>(p, <span class="fl">3.5</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> p, <span class="at">y =</span> y)) <span class="sc">+</span> <span class="fu">geom_path</span>()<span class="sc">+</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Student Module Marks"</span>)<span class="sc">+</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Number of students"</span>)<span class="sc">+</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This is certainly more informative than the previous plot. this shows that more students will be achieving a grade around the 60-70% range but the proportion of students achieving grades higher than this significantly drops off when grades are higher than 75.</p>
+</section>
+<section id="strongly-informative-priors" class="level2">
+<h2 class="anchored" data-anchor-id="strongly-informative-priors">Strongly informative priors</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">=</span> <span class="dv">45</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">=</span> <span class="dv">17</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">p =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.01</span>), <span class="at">y =</span> <span class="fu">dbeta</span>(p, <span class="dv">45</span>, <span class="dv">17</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> p, <span class="at">y =</span> y)) <span class="sc">+</span> <span class="fu">geom_path</span>()<span class="sc">+</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Student Module Marks"</span>)<span class="sc">+</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Number of students"</span>)<span class="sc">+</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This is strongly informative because the distribution is very tight around the 67 mark. it shows that very a little amount of students will fail the module, and most will do relatively well around the 60-70 mark. Students, however, will be unlikely to achieve higher than a 75 mark, with the right tail of the distribution cutting off around the 85-90 mark.</p>
+</section>
+<section id="creating-and-plotting-some-prior-predictions" class="level2">
+<h2 class="anchored" data-anchor-id="creating-and-plotting-some-prior-predictions">Creating and plotting some prior predictions</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="dv">14</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating 100 simulated marks from a beta distribution</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>sim_marks <span class="ot">&lt;-</span> <span class="fu">rbeta</span>(<span class="dv">100</span>, alpha, beta)</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a tibble with simulated marks for the module</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>sim_marks_tibble <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">Student_Marks =</span> sim_marks)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>or an alternative and bit crazy version</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">50</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">n =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(n) <span class="sc">%&gt;%</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">alpha =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">67</span>, <span class="dv">5</span>), <span class="at">beta =</span> <span class="fu">rexp</span>(<span class="dv">1</span>, <span class="dv">20</span>))</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>gen_prior_pred <span class="ot">&lt;-</span> <span class="cf">function</span>(n, alpha, beta) {</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a> x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="fl">0.01</span>)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a> d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">n =</span> n, <span class="at">alpha =</span> alpha, <span class="at">beta =</span> beta,</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">x =</span> x,</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dnorm</span>(x, alpha, beta))</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>   <span class="fu">return</span>(d)</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>prior_student_marks <span class="ot">&lt;-</span> <span class="fu">pmap_df</span>(priors, gen_prior_pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And the plot for this masterpiece</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Homework_3_Quatro_Version_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
