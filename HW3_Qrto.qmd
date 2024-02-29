@@ -353,6 +353,14 @@ New_prior <- function(n, alpha, beta) {
 Informed_Prior_Plot <- pmap_df(Informed_priors, New_prior)
 ```
 
+I chose the values of the alpha distribution to be 19/30 and the beta distribution to be 9/15 to, as best i can, represent that student scores will average around the 67 mark and with scores roughly ranging from 50 to about 85/90.
+
+The alpha values represent the shape of the distribution, which ranges from a uniformed sample of 19-30.
+
+The beta values too represent the shape of the distribution and are a uniform sample from a continuous distribution ranging from 9-15.
+
+So, given alpha and beta, we are left with this beautiful plot:
+
 ```{r, echo=FALSE}
 ggplot(Informed_Prior_Plot, aes(marks, density, group = n)) + 
   geom_path(alpha = 0.6)+
