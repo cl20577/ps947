@@ -1,0 +1,360 @@
+---
+title: "PS947 Homework 3"
+format: html
+editor: visual
+---
+
+```{r, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lme4)
+```
+
+## Question 2
+
+Fit an appropriate model to this data to analyse how recommendation mode affects whether a recommendation is followed. Remember to describe your analysis choices and why you made them.
+
+## Running Code
+
+```{r, echo = FALSE}
+library(readxl)
+recommendations_HW3 <- read_excel("C:/Users/charl/OneDrive/Desktop/R/data/recommendations_HW3.xlsx")
+View(recommendations_HW3)
+```
+
+```{r}
+
+recommendations_HW3 <- recommendations_HW3%>%
+  mutate(mode = as.factor(Mode))
+
+
+recom_new <- recommendations_HW3%>%
+  group_by(Mode)%>%
+  summarise(
+    followed = mean(RecommendationFollowed))
+```
+
+Average values of the Auditory and Visual mode for the recommendation followed:
+
+```{r}
+recom_new
+```
+
+The data shows that participants who had an auditory recommendation followed the recommendation **51.4%** of the time whereas those who had an auditory recommendation followed it **39.4%** of the time.
+
+A bar-plot of the mean values for the Auditory and Visual mode.
+
+```{r,echo=FALSE}
+ggplot(recommendations_HW3, aes(x = RecommendationFollowed, y = Mode, fill = Mode)) +
+  stat_summary(fun = mean, geom = "bar", position = "dodge") +
+  labs(x = "Probability of following the recommendation", y = "Sensory Modality") +
+  ggtitle("The probability of following the recommendation by sensory modailty")+
+  theme_minimal()+
+  coord_flip()
+```
+
+# Running a simple model
+
+```{r}
+recom_glm <- glm(data = recommendations_HW3, 
+                 RecommendationFollowed ~ Mode, 
+                 family = "binomial")
+```
+
+Now to create a generalised linear model where Recommendation Followed is regressed against Mode.
+
+I chose a
+
+```{r}
+summary(recom_glm)
+```
+
+Looking at the coefficients, now let's run a plogis function to understand the proportion of participants who followed the recommendation for the given mode.
+
+```{r, echo=FALSE}
+plogis(0.06)
+```
+
+For the Beta coefficient of 0.06, which is the intercept, **51%** of participants followed the recommendation for the auditory mode.
+
+```{r, echo=FALSE}
+plogis(-0.49)
+```
+
+For the Beta coefficient of -0.49, which represents the visual mode, only **37%** of participants followed the recommendation.
+
+This, however, seemed to be too simple of a conclusion for the given data set, therefore, I went about including Stimulus type into the model to give a broader perspective of how Recommendation Followed is regressed against Mode and looking at the interactions between different stimulus types per person.
+
+# A more complicated model
+
+I wanted to see if there was an effect for whether the recommendation was followed for the sensory modality and stimulus type. This makes the model more complicated but certainly more informative by looking at the relationship between recommendation followed with mode and stimulus, their interaction, and accounting for the random effects of mode for each level of person.
+
+Mode and Stimulus represent the independent variables.
+
+I have decided to put **mode** as a variable slope and **response id** as the variable intercept. Mode and response id represent random effects as Mode is variable being either auditory and visual, and response id as this study had a repeated measures design whereby the same participant experienced multiple stimulus types for the same mode.
+
+```{r}
+
+recommendations_HW3$ResponseID <- factor(recommendations_HW3$ResponseID)
+
+recom_int_glmer <- glmer(data = recommendations_HW3, 
+                 RecommendationFollowed ~ Mode + (Mode|ResponseID) * Stimulus, 
+                 family = "binomial")
+```
+
+Now to have a look at the output for this model
+
+```{r}
+summary(recom_int_glmer)
+```
+
+We can see that including stimulus type into the model produces much different results to the previous, more simple model.
+
+This new model shows that when in the visual mode, the extension cord stimulus was positively associated with following the recommendation.
+
+```{r}
+plogis(1.55)
+```
+
+```{r}
+plogis(0.23)
+```
+
+As such, converting the Beta coefficient into a percentage, **82%** of those in the visual mode with an extension cord stimulus type followed the recommendation. Furthermore, as shown by the intercept, when all other variables are held constant, there is a positive association with auditory mode and following the recommendation in that **55%** of participants followed the recommendation when in the auditory mode.
+
+This model is certainly more informative than the previous more simple one as we can see that the visual condition for the extension cord stimulus was actually positively associated with following the recommendation.
+
+## Complicated models truly are our saving grace! Praise be!!
+
+A cute lil plot of this new model
+
+```{r, echo=FALSE}
+  ggplot(recommendations_HW3, aes(x = Stimulus, y = Mode, fill = RecommendationFollowed)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Sensory Mode and Recommendation Followed by Stimulus",
+       x = "Stimulus Type", y = "Proportion")+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## OMG it is so ugly! Not cute at all
+
+What this horrible graph tells us is that in the visual condition, only the recommendation on the extension cord stimulus prompted people to follow the recommendation (as shown in the light blue column). All the other stimulus types were negatively associated with following the recommendation.
+
+### Next, we are going to have a think about if there a difference between perceived competence, intelligence and thoughtfulness for the different modalities?
+
+### A first thought might be to see the composite intellect - the aggregation of the three variables, and see if this shares a relationship with modality.
+
+```{r}
+Composite_int <- recommendations_HW3%>%
+  group_by(Mode)%>%
+  summarise(
+    Intellect = mean(CompositeIntellect))
+```
+
+```{r}
+Composite_int
+```
+
+So we can see that the general intellect ratings in the visual condition are higher than that of the auditory condition. Now let's go and test the modality against each separate rating variable.
+
+```{r, echo=FALSE}
+ggplot(recommendations_HW3, aes(x = Mode, y = CompositeIntellect, fill = Mode)) +
+  stat_summary(fun = mean, geom = "bar", position = "dodge") +
+  labs(x = "", y = "Composite Intellect") +
+  ggtitle("Composite Intellect by sensory modailty")+
+  theme_minimal()
+```
+
+So we can see that the general intellect ratings in the visual condition are higher than that of the auditory condition. Although this is not by much!
+
+Now let's go and test the modality against each separate rating variable.
+
+```{r}
+funky_glm <- glm(data = recommendations_HW3, mode ~ Competent + Intelligent + Thoughtful,
+                 family = "binomial")
+```
+
+```{r}
+summary(funky_glm)
+```
+
+So, in the summary we can see that there are significant effects for the intercept and the three variables.
+
+Now, making a plot will make this data easier to visualise. I will make three separate plots for simplicity.
+
+### Competence
+
+```{r, echo=FALSE}
+ggplot(recommendations_HW3, aes(x = mode, y = Competent, fill = mode)) +
+  geom_boxplot() +
+  labs(x = "Sensory Mode", y = "Competence") +
+  scale_fill_manual(values = c("beige", "pink"))
+```
+
+```{r}
+plogis(-0.35)
+```
+
+We can see that **41%** of participants rating the recommendation as less competent in the auditory mode.
+
+### Intelligence
+
+```{r, echo=FALSE}
+ggplot(recommendations_HW3, aes(x = mode, y = Intelligent, fill = mode)) +
+  geom_boxplot() +
+  labs(x = "Sensory Mode", y = "Intelligence") +
+  scale_fill_manual(values = c("brown", "purple"))
+```
+
+```{r}
+plogis(0.30)
+```
+
+We can see that **57%** of participants rated the visual mode as more intelligent as those in the auditory mode.
+
+### Thoughtfulness
+
+```{r, echo=FALSE}
+ggplot(recommendations_HW3, aes(x = mode, y = Thoughtful, fill = mode)) +
+  geom_boxplot() +
+  labs(x = "Sensory Mode", y = "Thoughtfulness") +
+  scale_fill_manual(values = c("yellow", "orange"))
+```
+
+```{r}
+plogis(0.27)
+```
+
+Finally, we can see that **56%** of participants ratede the visual mode as more thoughtful than those in the auditory mode.
+
+### Overall, we can see that there were significant differences for the auditory mode, recommendations were rated as more competent, however, for the visual mode participants rated the visual recommendations are more intelligent and thoughtful.
+
+# Why would we use a beta distribution?
+
+-   Beta distributions do not assume normality in the data and for this example, student scores may well not be normally distributed, especially since this is such a hard module!!
+
+-   Also, since there are clear bounds to the data set i.e., being between 0-100, we can convert the marks down to 0-1 instead.
+
+-   Beta distributions are more appropriate for percentage data as well, thus it seems appropriate to use it for student scores as the parameters of the B-D are set to reflect the minimum and maximum bounds of the data set.
+
+Okay! Let's set some alpha and beta values
+
+```{r}
+set.seed(100)
+alpha = 20
+beta = 14
+```
+
+```{r, echo=FALSE}
+tibble(p = seq(0, 1, 0.01), y = dbeta(p, 20, 10)) %>%
+  ggplot(aes(x = p, y = y)) + geom_path()+
+  xlab("Student Module Marks")+
+  ylab("Number of students")+
+  theme_minimal()
+```
+
+As we can see with this plot, students scores are more likely to range around 67, therefore with an alpha of 20 and a beta of 14 i based my prior around this to reflect it in the beta distribution plot.
+
+## A B-D with weakly informative priors
+
+```{r}
+set.seed(100)
+alpha = 2
+beta = 2
+```
+
+```{r, echo=FALSE}
+tibble(p = seq(0, 1, 0.01), y = dbeta(p, 2, 2)) %>%
+  ggplot(aes(x = p, y = y)) + geom_path()+
+  xlab("Student Module Marks")+
+  ylab("Number of students")+
+  theme_minimal()
+```
+
+This is weakly informative because the density of scores is very broad and has the highest level of density around the mid-point of the scale, thus giving us a rough idea that most scores will be around the mid-point.
+
+## Informative priors
+
+```{r}
+set.seed(100)
+alpha = 3.5
+beta = 2
+```
+
+```{r}
+tibble(p = seq(0, 1, 0.01), y = dbeta(p, 3.5, 2)) %>%
+  ggplot(aes(x = p, y = y)) + geom_path()+
+  xlab("Student Module Marks")+
+  ylab("Number of students")+
+  theme_minimal()
+```
+
+This is certainly more informative than the previous plot. this shows that more students will be achieving a grade around the 60-70% range but the proportion of students achieving grades higher than this significantly drops off when grades are higher than 75.
+
+## Strongly informative priors
+
+```{r}
+set.seed(100)
+alpha = 45
+beta = 17
+```
+
+```{r}
+tibble(p = seq(0, 1, 0.01), y = dbeta(p, 45, 17)) %>%
+  ggplot(aes(x = p, y = y)) + geom_path()+
+  xlab("Student Module Marks")+
+  ylab("Number of students")+
+  theme_minimal()
+```
+
+This is strongly informative because the distribution is very tight around the 67 mark. it shows that very a little amount of students will fail the module, and most will do relatively well around the 60-70 mark. Students, however, will be unlikely to achieve higher than a 75 mark, with the right tail of the distribution cutting off around the 85-90 mark.
+
+## Creating and plotting some prior predictions
+
+```{r}
+set.seed(100)
+alpha <- 20
+beta <- 14
+
+# Generating 100 simulated marks from a beta distribution
+sim_marks <- rbeta(100, alpha, beta)
+
+# Creating a tibble with simulated marks for the module
+sim_marks_tibble <- tibble(Student_Marks = sim_marks)
+```
+
+```{r, echo=FALSE}
+ggplot(sim_marks_tibble, aes(x = Student_Marks)) +
+  geom_histogram(binwidth = 0.05, fill = "orange", color = "black")+
+  labs(x = "Student Marks", y = "Frequency", 
+       title = "Histogram of Simulated Student Marks from Beta Distribution")+
+  theme_minimal()
+```
+
+or an alternative and bit crazy version
+
+And the plot for this masterpiece
+
+```{r}
+set.seed(100)
+
+Informed_priors <- tibble(n = 1:50) %>% group_by(n) %>% 
+  mutate(alpha = runif(1, 19, 30), beta = runif(1, 9, 15))
+
+New_prior <- function(n, alpha, beta) {
+  x <- seq(0, 1, 0.001)
+  d <- tibble(n = 100, alpha = alpha, beta = beta,
+              marks = x, 
+              density = dbeta(x, alpha, beta))
+  return(d) 
+  }
+
+Informed_Prior_Plot <- pmap_df(Informed_priors, New_prior)
+```
+
+```{r, echo=FALSE}
+ggplot(Informed_Prior_Plot, aes(marks, density, group = n)) + 
+  geom_path(alpha = 0.6)+
+  theme_minimal()
+```
