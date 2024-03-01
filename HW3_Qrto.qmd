@@ -63,8 +63,6 @@ recom_glm <- glm(data = recommendations_HW3,
 
 Now to create a generalised linear model where Recommendation Followed is regressed against Mode.
 
-I chose a
-
 ```{r}
 summary(recom_glm)
 ```
@@ -87,7 +85,7 @@ This, however, seemed to be too simple of a conclusion for the given data set, t
 
 # A more complicated model
 
-I wanted to see if there was an effect for whether the recommendation was followed for the sensory modality and stimulus type. This makes the model more complicated but certainly more informative by looking at the relationship between recommendation followed with mode and stimulus, their interaction, and accounting for the random effects of mode for each level of person.
+I wanted to see if there was an effect for whether the recommendation was followed for the sensory modality and stimulus type. This makes the model more complicated but certainly more informative by looking at the relationship between recommendation followed with mode and stimulus, their interaction, and accounting for the random effects of mode for each person.
 
 Mode and Stimulus represent the independent variables.
 
